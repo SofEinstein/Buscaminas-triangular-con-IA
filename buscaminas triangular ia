@@ -1,0 +1,94 @@
+import random
+
+def crear_tablero():
+    print("Elija el tipo de triángulo para el tablero:")
+    print("1. Escaleno")
+    print("2. Isósceles")
+    print("3. Equilátero")
+    opcion = int(input("Ingrese el número de opción: "))
+    if opcion == 1:
+        lado1 = int(input("Ingrese la longitud del lado más largo: "))
+        lado2 = int(input("Ingrese la longitud del segundo lado: "))
+        lado3 = int(input("Ingrese la longitud del tercer lado: "))
+        filas = max(lado1, lado2, lado3)
+        columnas = lado1
+    elif opcion == 2:
+        lado1 = int(input("Ingrese la longitud del lado más largo: "))
+        lado2 = int(input("Ingrese la longitud del lado más corto: "))
+        filas = lado1
+        columnas = lado1
+    elif opcion == 3:
+        lado = int(input("Ingrese la longitud de los lados: "))
+        filas = lado
+        columnas = lado
+    else:
+        print("Opción inválida. Se creará un triángulo equilátero de tamaño 5.")
+        filas = 5
+        columnas = 5
+    tablero = [[" " for j in range(columnas + 1)] for i in range(filas + 1)]
+    # Agregar números de filas
+    for i in range(1, filas + 1):
+        tablero[i][0] = str(i)
+    # Agregar números de columnas
+    for j in range(1, columnas + 1):
+        tablero[0][j] = str(j)
+    if opcion == 1:
+        for i in range(1, filas + 1):
+            for j in range(1, i + 1):
+                tablero[i][j] = "#"
+    elif opcion == 2:
+        for i in range(1, filas + 1):
+            for j in range(1, filas - i + 2):
+                tablero[i][j] = "#"
+    else:
+        for i in range(1, filas + 1):
+            for j in range(1, filas - i + 2):
+                tablero[i][j] = "#"
+    return tablero
+
+def colocar_minas(tablero, num_minas):
+    coordenadas = []
+    for i in range(1, len(tablero)):
+        for j in range(1, len(tablero[i])):
+            if tablero[i][j] == "#":
+                coordenadas.append((i, j))
+    minas = random.sample(coordenadas, num_minas)
+    for fila, columna in minas:
+        tablero[fila][columna] = "#"
+    return tablero, minas
+
+def jugar(tablero, minas):
+    while True:
+        fila = int(input("Ingrese la fila: "))
+        columna = int(input("Ingrese la columna: "))
+        if 0 < fila < len(tablero) and 0 < columna < len(tablero[fila]):
+            if (fila, columna) in minas:
+                print("¡Boom! Has detonado una mina. Fin del juego.")
+                tablero[fila][columna] = "X"
+                mostrar_tablero(tablero)
+                return
+            else:
+                num_minas = contar_minas_vecinas(tablero, fila, columna, minas)
+                tablero[fila][columna] = str(num_minas)
+                mostrar_tablero(tablero)
+        else:
+            print("Coordenadas inválidas. Inténtalo de nuevo.")
+
+def contar_minas_vecinas(tablero, fila, columna, minas):
+    minas_vecinas = 0
+    for i in range(fila - 1, fila + 2):
+        for j in range(columna - 1, columna + 2):
+            if 0 < i < len(tablero) and 0 < j < len(tablero[i]) and (i, j) in minas:
+                minas_vecinas += 1
+    return minas_vecinas
+
+def mostrar_tablero(tablero):
+    for fila in tablero:
+        print(" ".join(fila))
+
+# Programa principal
+tablero = crear_tablero()
+num_minas = int(input("Ingrese el número de minas: "))
+tablero, minas = colocar_minas(tablero, num_minas)
+jugar(tablero, minas)
+
